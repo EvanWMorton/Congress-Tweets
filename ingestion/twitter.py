@@ -8,13 +8,13 @@ import read_config
 # is our stripped-down representation of a tweet.
 
 class Tweet:
-    def __init__(self, twitter_status):
+    def __init__(self, twitter_status, retweet_author_screen_names):
     #author_name, author_screen_name, create_datetime, id, full_text):
         print("processing twitter_status with id = " + str(twitter_status.id))
         outer_author_screen_name = twitter_status.author.screen_name;
         print ("outer_author_screen_name = " + outer_author_screen_name)
         # If the tweet is from a source we follow only because of what it retweets, take the retweeted tweet.  Otherwise just stay on the tweet we're on.
-        if outer_author_screen_name in ('All435Reps','All100Senators'):
+        if outer_author_screen_name in retweet_author_screen_names:
             real_twitter_status = twitter_status.retweeted_status
         else:
             real_twitter_status = twitter_status
@@ -90,13 +90,14 @@ class twitter_account:
         auth = tweepy.OAuthHandler(auth_data["api_key"], auth_data["api_secret_key"])
         auth.set_access_token(auth_data["access_token"], auth_data["access_token_secret"])
         self.api = tweepy.API(auth)
+        self.retweet_author_screen_names = auth_data["retweet_author_screen_names"]
     def get_tweets(self, max_tweet_count, id_for_since_id):
         twitter_ststuses = self.api.home_timeline(q="foo", tweet_mode='extended', count=max_tweet_count, since_id=id_for_since_id)
         #print ("number of tweets = " + str(len(twitter_ststuses)))
         tweet_list = []
         for twitter_status in twitter_ststuses:
             pritty(twitter_status)
-            tweet = Tweet(twitter_status)
+            tweet = Tweet(twitter_status, self.retweet_author_screen_names)
             tweet_list.append(tweet)
         return tweet_list
 #        print ("length of tweet_list is " + str(len(tweet_list)))

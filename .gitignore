@@ -1,3 +1,4 @@
 *.json
 *.out
+test*
 __pycache__

@@ -120,4 +120,6 @@ ta = twitter.twitter_account("twitter_config.private.json")
 
 while True:
     overlap_tweet_count = persist_tweets(raw_tweet_table_name, persistence_run_table_name)
+    if int(sleep_seconds) == 0:
+        break
     time.sleep(int(sleep_seconds))
