@@ -24,18 +24,10 @@ class OracleDb:
         endpoint = db_config["endpoint"]
         port = db_config["port"]
         database = db_config["database"]
-        connstr = username + "/" + password + "@" + endpoint + ":" + port + "/" + database
+        connstr = f"{username}/{password}@{endpoint}:{port}/{database}"
+        print ("connstr = " + connstr);
         self.connection = cx_Oracle.connect(connstr)
 
-#    def get_some_stuff(self):
-#        cursor = self.connection.cursor()
-#        #Execute Query
-#        cursor.execute("select * from raw_tweet")
-#        result = cursor.fetchall()
-#        #Fetch results
-#        for row in result:
-#            print(row)
-#        cursor.close()
     def run_query(self, query):
         ''' Run a database query and return the result '''
         cursor = self.connection.cursor()
@@ -43,11 +35,6 @@ class OracleDb:
         result = cursor.fetchall()
         cursor.close()
         return result
-    def run_statement(self, statement):
-        ''' Run a database statement '''
-        cursor = self.connection.cursor()
-        cursor.execute(statement)
-        # How do you resturn result?
     def run_statement_with_variables(self, statement, dictionary):
         ''' Run a database statement with bind variables. '''
         cursor = self.connection.cursor()
@@ -63,9 +50,10 @@ class OracleDb:
         ''' Get a date format which, in the TO_DATE function for this database, gives a format that works for INSERT statements. '''
         return 'YYYY-MM-DD-HH24-MI-SS'
 
-#odb = OracleDb()
-#query_result = odb.run_query("select * from raw_tweet")
-#for row in query_result:
-#    print(row)
-#odb.commit()
-#odb.close()
+if __name__ == "__main__":
+    odb = OracleDb()
+    query_result = odb.run_query("select count(*) from raw_tweet")
+    for row in query_result:
+        print(row)
+    odb.commit()
+    odb.close()

@@ -70,7 +70,7 @@ def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
         query = "INSERT INTO " + raw_tweet_table_name + " VALUES (:author_name,:author_screen_name,TO_DATE(:date_string,'" + oracle_db.OracleDb.get_date_format_string() + "'),:id,:full_text)"
         # Left-pad the id with zeros, so that in the unlikely event that the length in digits ever changes, the alphabetical MAX we uses
         # in the query for the highest value will match the numerical max.
-        padded_id = format(tweet.get_id(),'022d')   # xxx magic number
+        padded_id = format(tweet.get_id(),'022d')   # FIXME magic number
         dtime = tweet.get_datetime()
         date_string = dtime.strftime('%y-%m-%d-%H-%M-%S')
         print ("date_string = " + date_string)

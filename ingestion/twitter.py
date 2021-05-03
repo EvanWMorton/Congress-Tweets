@@ -63,9 +63,9 @@ def pritty(d, indent=0, label=""):
     any_genuine_attrs = False
     for i in range(attr_name_count):
         attr_name = attr_names[i]
-        if attr_name[0] != '_' \
-            and attr_name not in ('denominator','imag','numerator','real') \
-            and not (label.startswith('max') or label.startswith('min') or label.startswith('resolution')):
+        if (attr_name[0] != '_' and
+                attr_name not in ('denominator','imag','numerator','real') and not
+                (label.startswith('max') or label.startswith('min') or label.startswith('resolution'))):
             child = getattr(d,attr_name)
             if pritty(child, indent + 1, attr_name + ':'):
                 any_genuine_attrs = True
