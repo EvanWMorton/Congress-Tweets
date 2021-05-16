@@ -25,7 +25,7 @@ class OracleDb:
         port = db_config["port"]
         database = db_config["database"]
         connstr = f"{username}/{password}@{endpoint}:{port}/{database}"
-        print ("connstr = " + connstr);
+        print("connstr = " + connstr)
         self.connection = cx_Oracle.connect(connstr)
 
     def run_query(self, query):
@@ -39,15 +39,17 @@ class OracleDb:
         ''' Run a database statement with bind variables. '''
         cursor = self.connection.cursor()
         cursor.execute(statement, dictionary)
-        # How do you resturn result?
+        # How do you resturn results?
     def commit(self):
         ''' Perform a COMMIT. '''
         self.connection.commit()
     def close(self):
         ''' Close the database connection. '''
         self.connection.close()
+    @staticmethod
     def get_date_format_string():
-        ''' Get a date format which, in the TO_DATE function for this database, gives a format that works for INSERT statements. '''
+        ''' Get a date format which, in the TO_DATE function for this database, gives a
+        format that works for INSERT statements. '''
         return 'YYYY-MM-DD-HH24-MI-SS'
 
 if __name__ == "__main__":

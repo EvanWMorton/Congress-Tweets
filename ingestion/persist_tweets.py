@@ -116,7 +116,7 @@ if len(sys.argv)>2:
 
 print ("args are sleep_seconds = {0}, raw_tweet_table_name = {1}, persistence_run_table_name = {2}".format(sleep_seconds,raw_tweet_table_name,persistence_run_table_name))
 
-ta = twitter.twitter_account("twitter_config.private.json")
+ta = twitter.TwitterAccount("twitter_config.private.json")
 
 while True:
     overlap_tweet_count = persist_tweets(raw_tweet_table_name, persistence_run_table_name)
