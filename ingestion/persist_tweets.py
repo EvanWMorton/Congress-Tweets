@@ -1,10 +1,10 @@
 import sys
 import datetime
 import time
+import logging
 
 import oracle_db
 import twitter
-
 
 # This fetches recent tweets and persists them, meaning stores them in the database.
 def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
@@ -14,15 +14,13 @@ def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
     
     # Find the last (highest-id) old tweet, meaning of a tweet we've already persisted.
     query_result = odb.run_query("select max(id) from " + raw_tweet_table_name)
-    #print ("length of query_result is " + str(len(query_result)))
     answer = query_result[0][0]
     if answer == None:
         # Special case of empty table.  Use an arbitrary old tweet id.
         last_old_tweet_id = '1386138077077381121'
     else:
         last_old_tweet_id = answer; 
-    print ("last_old_tweet_id = " + str(last_old_tweet_id))
-    #exit()
+    logging.info ("last_old_tweet_id = " + str(last_old_tweet_id))
     
     #     We want to get all new tweets, that is, all tweets that we don't already have.  The normal way to accomplish this would be
     # to pass last_old_tweet_id.  However, this is not guaranteed to get *all* new tweets, as Twitter limits your lookback.  As an example,
@@ -61,10 +59,9 @@ def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
                 highest_datetime = dtime
             if dtime < lowest_datetime:
                 lowest_datetime = dtime
-        #print (id)
     # At this point, overlap_tweet_count will be 1 in the good case and 0 in the bad case (in which we missed data).
     if overlap_tweet_count > 1:
-        print("overlap_tweet_count too high: " + str(overlap_tweet_count))
+        logging.error("overlap_tweet_count too high: %s", overlap_tweet_count)
         exit()
     for tweet in copy_of_tweet_list:
         query = "INSERT INTO " + raw_tweet_table_name + " VALUES (:author_name,:author_screen_name,TO_DATE(:date_string,'" + oracle_db.OracleDb.get_date_format_string() + "'),:id,:full_text)"
@@ -73,16 +70,14 @@ def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
         padded_id = format(tweet.get_id(),'022d')   # FIXME magic number
         dtime = tweet.get_datetime()
         date_string = dtime.strftime('%y-%m-%d-%H-%M-%S')
-        print ("date_string = " + date_string)
         dict = { "author_name": tweet.get_author_name(), \
                  "author_screen_name": tweet.get_author_screen_name(), \
                  "date_string": date_string, \
                  "id": padded_id, \
                  "full_text": tweet.get_full_text() \
                }
-        #print ("query is:" + query)
         odb.run_statement_with_variables(query,dict)
-    print(str(datetime.datetime.today()) + " length of copy is " + str(len(copy_of_tweet_list)) + ", overlap_tweet_count = " + str(overlap_tweet_count))
+    logging.info("%s length of copy is %d, overlap_tweet_count = %d", str(datetime.datetime.today()), len(copy_of_tweet_list), overlap_tweet_count)
     # Having persisted the tweet data, persist a little data about this run.
     query = "INSERT INTO " + persistence_run_table_name + " VALUES (:run_start, \
                                                  :tweet_count,:overlap_count, \
@@ -102,6 +97,10 @@ def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
     odb.close()
     return overlap_tweet_count
 
+# This main routine runs persist_tweets, possibly repeatedly.
+
+logging.basicConfig(level=logging.INFO)
+
 if len(sys.argv) < 2 or len(sys.argv) > 4:
     print(len(sys.argv))
     print("Usage: {0} sleep_seconds [raw_tweet_table_name [persistence_run_table_name]]".format(sys.argv[0]))
@@ -114,7 +113,7 @@ if len(sys.argv)>2:
     if len(sys.argv)>3:
         persistence_run_table_name = sys.argv[3]
 
-print ("args are sleep_seconds = {0}, raw_tweet_table_name = {1}, persistence_run_table_name = {2}".format(sleep_seconds,raw_tweet_table_name,persistence_run_table_name))
+logging.info ("args are sleep_seconds = {0}, raw_tweet_table_name = {1}, persistence_run_table_name = {2}".format(sleep_seconds,raw_tweet_table_name,persistence_run_table_name))
 
 ta = twitter.TwitterAccount("twitter_config.private.json")
 

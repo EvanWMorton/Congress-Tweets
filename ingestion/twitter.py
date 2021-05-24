@@ -1,6 +1,7 @@
 '''
 This class wraps tweepy.
 '''
+import logging
 import datetime
 import tweepy
 
@@ -14,9 +15,9 @@ class Tweet:
     '''
     def __init__(self, twitter_status, retweet_author_screen_names):
     #author_name, author_screen_name, create_datetime, id, full_text):
-        print("processing twitter_status with id = " + str(twitter_status.id))
+        logging.debug("processing twitter_status with id = %s", str(twitter_status.id))
         outer_author_screen_name = twitter_status.author.screen_name
-        print("outer_author_screen_name = " + outer_author_screen_name)
+        logging.debug("outer_author_screen_name = %s", outer_author_screen_name)
         # If the tweet is from a source we follow only because of what it
         # retweets, take the retweeted tweet.  Otherwise just stay on the
         # tweet we're on.
@@ -116,7 +117,6 @@ class TwitterAccount:
         twitter_ststuses = self.api.home_timeline(
             q="foo", tweet_mode='extended',
             count=max_tweet_count, since_id=id_for_since_id)
-        #print ("number of tweets = " + str(len(twitter_ststuses)))
         tweet_list = []
         for twitter_status in twitter_ststuses:
             pritty(twitter_status)
