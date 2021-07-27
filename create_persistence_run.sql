@@ -5,6 +5,6 @@ CREATE TABLE persistence_run (
 	overlap_count INTEGER,
 	min_tweet_datetime DATE,
 	max_tweet_datetime DATE,
-	min_tweet_id VARCHAR2(22),
-	max_tweet_id VARCHAR2(22)
+	min_tweet_id VARCHAR(22),
+	max_tweet_id VARCHAR(22)
 );
