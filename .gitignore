@@ -1,6 +1,7 @@
 *.json
 *.out
-test*
+tmp*
 __pycache__
 *.orig
 ps.bash
+*.swp

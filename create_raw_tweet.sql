@@ -3,7 +3,7 @@ CREATE TABLE raw_tweet (
     -- The author of the original tweet.  The 15 is the max per Twitter.
     author_name VARCHAR(4000),
 	author_screen_name VARCHAR(15),
-	datetime DATE,
+	datetime TIMESTAMP,
 	-- If ID were stored as an integer, it would have to be LONG.  That type does not support many operations,
 	-- including at least one we need: MAX.
 	id VARCHAR(22),
