@@ -6,6 +6,10 @@ import logging
 import postgres_db
 import twitter
 
+# The limits on how many tweets back we can go are not well documented.  It appears
+# that we can never get more than 200.  So might as well ask for more.
+NUMBER_OF_TWEETS_TO_REQUEST = 300
+
 # This fetches recent tweets and persists them, meaning stores them in the database.
 def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
 
@@ -44,9 +48,9 @@ def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
     # is not a legitimate id, but works in Twitter's filters and doesn't violate
     # anything in the interface.
     last_old_tweet_id_as_int = int(last_old_tweet_id)
-    # xxxput this back to 200
-   # xxx parametrize this a bit
-    tweet_list = ta.get_tweets(5, last_old_tweet_id_as_int-1)
+    tweet_id_to_pass = last_old_tweet_id_as_int - 1
+    #print ("tweet_id_to_pass = " + str(tweet_id_to_pass))
+    tweet_list = ta.get_tweets(NUMBER_OF_TWEETS_TO_REQUEST, tweet_id_to_pass)
 
     # Determine the highest and lowest ids and times, and look for the overlapped one discussed above.
     highest_id = 0
@@ -75,7 +79,6 @@ def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
         logging.error("overlap_tweet_count too high: %s", overlap_tweet_count)
         exit()
     for tweet in copy_of_tweet_list:
-        # xxxHave to get date format right.
         # Left-pad the id with zeros, so that in the unlikely event that the length in digits ever changes, the alphabetical MAX we uses
         # in the query for the highest value will match the numerical max.
         padded_id = format(tweet.get_id(),'022d')   # FIXME magic number
@@ -102,8 +105,6 @@ def persist_tweets(raw_tweet_table_name, persistence_run_table_name):
            }
     postgres_client.insert_into_persistence_run (dict)
     postgres_client.commit()
-    # xxxdoes this next line belong back in?
-    #postgres_client.close()
     return overlap_tweet_count
 
 # This main routine runs persist_tweets, possibly repeatedly.
