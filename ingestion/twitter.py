@@ -38,7 +38,12 @@ class Tweet:
         # allows us to subtract 1 from it, which we need for an inequality-strictness
         # reason described in persist_tweets.py.
         # pylint: disable=invalid-name
-        self.id = real_twitter_status.id
+        # We use the id from the "outer" tweet, not the real inner one.  That's
+        # because ordering of ID matters to the caller, and the IDs from retweets
+        # are sometimes in a different order from the IDs of the original tweets.
+        # Using the id from the inner one was a bug that caused us to get repeat
+        # tweets and probably caused us to miss some.
+        self.id = twitter_status.id
         self.full_text = real_twitter_status.full_text
     def get_author_name(self):
         # pylint: disable=missing-function-docstring
