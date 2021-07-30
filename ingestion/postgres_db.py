@@ -28,8 +28,7 @@ class postgres_client:
             connection_string,
             echo=False,
             execution_options={
-                 # xxx try diff levels here
-                "isolation_level": "REPEATABLE READ"    # so nothing committed until we say so
+                "isolation_level": "SERIALIZABLE"    # so nothing committed until we say so
             }
         )
         self.conn = self.engine.connect()
@@ -45,7 +44,7 @@ class postgres_client:
     def get_max_id(self):
         maximum_id = self.conn.execute(
             select([
-                   func.max(self.raw_tweet.c.id).   #xxxrem, type_=String).
+                   func.max(self.raw_tweet.c.id).
                        label('max_id')
                   ])
             ).scalar()
