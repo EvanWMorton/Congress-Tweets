@@ -7,19 +7,24 @@ import datetime
 import time
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, DateTime, select, func
 
-import read_config
+import utils
 
 class postgres_client:
     ''' See module comment '''
 
     def __init__(self):
         # Get all the config info.
-        db_config = read_config.read_config("db_config.private.json")
-        username = db_config["username"]
-        password = db_config["password"]
-        endpoint = db_config["endpoint"]
-        port = db_config["port"]
-        database = db_config["database"]
+        # Some devs would make these strings named constants,
+        # possibly in their own class.  Arguments against that:
+        # they're all gathered in one place anyway, they are
+        # named in a patterned way, there is no reason to ever
+        # change them, and naming them would create names for
+        # names.
+        username = utils.get_env_var("CTW_DB_USERNAME", True)
+        password = utils.get_env_var("CTW_DB_PASSWORD", True)
+        endpoint = utils.get_env_var("CTW_DB_ENDPOINT", True)
+        port = utils.get_env_var("CTW_DB_PORT", True)
+        database = utils.get_env_var("CTW_DB_DATABASE", True)
 
         # Make the database connection and modify it.
         connection_string = f"postgresql://{username}:{password}@{endpoint}:{port}/{database}"
