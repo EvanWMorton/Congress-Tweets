@@ -5,7 +5,7 @@ import logging
 import datetime
 import tweepy
 
-import read_config
+import utils
 
 class Tweet:
     '''
@@ -34,15 +34,15 @@ class Tweet:
             real_twitter_status.created_at.hour,
             real_twitter_status.created_at.minute,
             real_twitter_status.created_at.second)
-        # Treat id as an integer, even though we persist it as a string.  This
-        # allows us to subtract 1 from it, which we need for an inequality-strictness
-        # reason described in persist_tweets.py.
+        # Treat id as an integer, even though we persist it as a string.
+        # This allows us to subtract 1 from it, which we need for an
+        # inequality-strictness reason described in persist_tweets.py.
         # pylint: disable=invalid-name
         # We use the id from the "outer" tweet, not the real inner one.  That's
-        # because ordering of ID matters to the caller, and the IDs from retweets
-        # are sometimes in a different order from the IDs of the original tweets.
-        # Using the id from the inner one was a bug that caused us to get repeat
-        # tweets and probably caused us to miss some.
+        # because ordering of ID matters to the caller, and the IDs from
+        # retweets are sometimes in a different order from the IDs of the
+        # original tweets.  Using the id from the inner one was a bug that
+        # caused us to get repeat tweets and probably caused us to miss some.
         self.id = twitter_status.id
         self.full_text = real_twitter_status.full_text
     def get_author_name(self):
@@ -106,11 +106,16 @@ class TwitterAccount:
     '''
     # pylint: disable=too-few-public-methods
     def __init__(self, config_file_name):
-        auth_data = read_config.read_config(config_file_name)
-        auth = tweepy.OAuthHandler(auth_data["api_key"], auth_data["api_secret_key"])
-        auth.set_access_token(auth_data["access_token"], auth_data["access_token_secret"])
+        auth = tweepy.OAuthHandler(
+            utils.get_env_var('CTW_TWITTER_API_KEY',True),
+            utils.get_env_var('CTW_TWITTER_API_SECRET_KEY',True))
+        auth.set_access_token(
+            utils.get_env_var('CTW_TWITTER_ACCESS_TOKEN',True),
+            utils.get_env_var('CTW_TWITTER_ACCESS_TOKEN_SECRET',True))
         self.api = tweepy.API(auth)
-        self.retweet_author_screen_names = auth_data["retweet_author_screen_names"]
+        self.retweet_author_screen_names = \
+            utils.get_env_var('CTW_TWITTER_RETWEET_AUTHOR_SCREEN_NAMES', True) \
+            .split(',')
 
     def get_tweets(self, max_tweet_count, id_for_since_id):
         '''
